@@ -12,6 +12,12 @@ The app is designed to accept car attributes from the user, preprocess them, and
 - Preprocess categorical and numerical features using scikit-learn transformers.
 - Display the price prediction in the Streamlit UI.
 
+## Author
+
+- **Name:** Athira V
+- **Mulearn ID:** athirav-3@mulearn
+
+
 ## Repository Structure
 
 - `app.py` — root Streamlit entrypoint used by deployment platforms.
