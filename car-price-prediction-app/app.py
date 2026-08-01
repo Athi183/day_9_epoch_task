@@ -1,7 +1,9 @@
 import datetime
+import os
 import streamlit as st
 import pandas as pd
 import joblib
+from pathlib import Path
 
 
 # ----------------------------
@@ -11,10 +13,29 @@ st.set_page_config(page_title="Car Price Prediction", page_icon="🚗", layout="
 
 
 # ----------------------------
-# Load model
+# Paths
 # ----------------------------
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "model.pkl"
+DATA_PATH = BASE_DIR / "cardekho_dataset.csv"
+TRAIN_SCRIPT_PATH = BASE_DIR / "train_model.py"
+
+
+# ----------------------------
+# Load or train model
+# ----------------------------
+if not MODEL_PATH.exists():
+    st.warning("Saved model not found, training a new model now. This may take a minute...")
+    if DATA_PATH.exists():
+        import runpy
+
+        runpy.run_path(TRAIN_SCRIPT_PATH, run_name="__main__")
+    else:
+        st.error("Training dataset not found. Please ensure cardekho_dataset.csv is present.")
+        st.stop()
+
 try:
-    model = joblib.load("model.pkl")
+    model = joblib.load(MODEL_PATH)
 except Exception as e:
     import sklearn
 
@@ -22,12 +43,9 @@ except Exception as e:
     st.error(f"Could not load model: {e}")
     st.markdown(f"**Detected scikit-learn version:** {skl_ver}")
     st.markdown(
-        "The saved model was likely created with a different scikit-learn version.\n\n"
-        "To fix this, install the matching scikit-learn version in the Python environment used to run Streamlit and restart the app."
+        "The saved model may not be compatible with this environment. "
+        "Try recreating the model by deleting model.pkl and restarting the app."
     )
-    st.code("pip install scikit-learn==1.4.3", language="bash")
-    st.markdown("If you're using a virtual environment activate it first (for Windows PowerShell):")
-    st.code(".\\.venv\\Scripts\\Activate.ps1\npython -m pip install scikit-learn==1.4.3", language="powershell")
     st.stop()
 
 

@@ -1,0 +1,14 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.env
+.env
+.DS_Store
+.idea/
+*.log
+Thumbs.db
+desktop.ini
+pip-log.txt
+car-price-prediction-app/model.pkl
