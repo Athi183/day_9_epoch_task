@@ -11,4 +11,3 @@ __pycache__/
 Thumbs.db
 desktop.ini
 pip-log.txt
-car-price-prediction-app/model.pkl
