@@ -24,21 +24,29 @@ TRAIN_SCRIPT_PATH = BASE_DIR / "train_model.py"
 # ----------------------------
 # Load or train model
 # ----------------------------
+import runpy
+
 
 def train_new_model():
     try:
-        import train_model
+        runpy.run_path(TRAIN_SCRIPT_PATH, run_name="__main__")
     except Exception as e:
-        st.error("Failed to import the training module.")
+        st.error("Failed to execute the training script.")
         st.error(str(e))
         st.stop()
 
+    if not MODEL_PATH.exists():
+        st.error("Training completed but model file was not created.")
+        st.stop()
+
     try:
-        return train_model.train_model()
+        model = joblib.load(MODEL_PATH)
     except Exception as e:
-        st.error("Failed to train the model in the current environment.")
+        st.error("Model retraining completed but the new model could not be loaded.")
         st.error(str(e))
         st.stop()
+
+    return model
 
 
 def load_or_train_model():
