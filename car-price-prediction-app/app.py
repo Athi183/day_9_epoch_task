@@ -34,19 +34,33 @@ if not MODEL_PATH.exists():
         st.error("Training dataset not found. Please ensure cardekho_dataset.csv is present.")
         st.stop()
 
-try:
-    model = joblib.load(MODEL_PATH)
-except Exception as e:
-    import sklearn
+def load_or_train_model():
+    try:
+        return joblib.load(MODEL_PATH)
+    except Exception as e:
+        import sklearn
 
-    skl_ver = getattr(sklearn, "__version__", "unknown")
-    st.error(f"Could not load model: {e}")
-    st.markdown(f"**Detected scikit-learn version:** {skl_ver}")
-    st.markdown(
-        "The saved model may not be compatible with this environment. "
-        "Try recreating the model by deleting model.pkl and restarting the app."
-    )
-    st.stop()
+        skl_ver = getattr(sklearn, "__version__", "unknown")
+        st.warning("Saved model failed to load. Attempting to recreate the model with the current environment...")
+        st.write(f"Load error: {e}")
+        st.write(f"Detected scikit-learn version: {skl_ver}")
+
+        if DATA_PATH.exists():
+            MODEL_PATH.unlink(missing_ok=True)
+            import runpy
+
+            runpy.run_path(TRAIN_SCRIPT_PATH, run_name="__main__")
+            try:
+                return joblib.load(MODEL_PATH)
+            except Exception as e2:
+                st.error("Failed to recreate the model after retraining.")
+                st.error(f"Retry load error: {e2}")
+                st.stop()
+        else:
+            st.error("Training dataset not found. Please ensure cardekho_dataset.csv is present.")
+            st.stop()
+
+model = load_or_train_model()
 
 
 # ----------------------------
