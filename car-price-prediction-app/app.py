@@ -24,17 +24,31 @@ TRAIN_SCRIPT_PATH = BASE_DIR / "train_model.py"
 # ----------------------------
 # Load or train model
 # ----------------------------
-if not MODEL_PATH.exists():
-    st.warning("Saved model not found, training a new model now. This may take a minute...")
-    if DATA_PATH.exists():
-        import runpy
 
-        runpy.run_path(TRAIN_SCRIPT_PATH, run_name="__main__")
-    else:
+def train_new_model():
+    try:
+        import train_model
+    except Exception as e:
+        st.error("Failed to import the training module.")
+        st.error(str(e))
+        st.stop()
+
+    try:
+        return train_model.train_model()
+    except Exception as e:
+        st.error("Failed to train the model in the current environment.")
+        st.error(str(e))
+        st.stop()
+
+
+def load_or_train_model():
+    if not MODEL_PATH.exists():
+        st.warning("Saved model not found, training a new model now. This may take a minute...")
+        if DATA_PATH.exists():
+            return train_new_model()
         st.error("Training dataset not found. Please ensure cardekho_dataset.csv is present.")
         st.stop()
 
-def load_or_train_model():
     try:
         return joblib.load(MODEL_PATH)
     except Exception as e:
@@ -46,19 +60,16 @@ def load_or_train_model():
         st.write(f"Detected scikit-learn version: {skl_ver}")
 
         if DATA_PATH.exists():
-            MODEL_PATH.unlink(missing_ok=True)
-            import runpy
-
-            runpy.run_path(TRAIN_SCRIPT_PATH, run_name="__main__")
             try:
-                return joblib.load(MODEL_PATH)
-            except Exception as e2:
-                st.error("Failed to recreate the model after retraining.")
-                st.error(f"Retry load error: {e2}")
-                st.stop()
-        else:
-            st.error("Training dataset not found. Please ensure cardekho_dataset.csv is present.")
-            st.stop()
+                MODEL_PATH.unlink(missing_ok=True)
+            except Exception as delete_error:
+                st.write(f"Could not delete stale model file: {delete_error}")
+
+            return train_new_model()
+
+        st.error("Training dataset not found. Please ensure cardekho_dataset.csv is present.")
+        st.stop()
+
 
 model = load_or_train_model()
 

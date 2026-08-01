@@ -66,6 +66,7 @@ def train_model():
     print(f"Training complete. Mean absolute error: {mae:,.0f}")
     joblib.dump(model, MODEL_PATH)
     print(f"Saved model to {MODEL_PATH}")
+    return model
 
 
 if __name__ == "__main__":
