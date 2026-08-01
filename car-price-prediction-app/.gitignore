@@ -30,3 +30,6 @@ desktop.ini
 
 # Ignore pip cache
 pip-log.txt
+
+# Ignore trained model (large file) - add to Git LFS or upload separately
+model.pkl
